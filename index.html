@@ -8,7 +8,7 @@
             content="width=device-width,  viewport-fit=cover, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
         />
 
-        <title>OGL • Mouse Flowmap</title>
+        <title>TEMP</title>
         <link href="main.css" rel="stylesheet" />
     </head>
     <body>
@@ -100,9 +100,9 @@
         aspect = window.innerWidth / window.innerHeight;
       }
       var flowmap = new Flowmap(gl, {
-        falloff: 0.15,
+        falloff: 0.5,
         dissipation: 0.999,
-        alpha: 0.1
+        alpha: 0.5
       });
       // Triangle that includes -1 to 1 range for 'position', and 0 to 1 range for 'uv'.
       var geometry = new Geometry(gl, {
@@ -119,8 +119,8 @@
       var img = new Image();
       img.onload = () => (texture.image = img);
       img.crossOrigin = "Anonymous";
-      img.src =
-        "Artboard 1.png";
+        img.src = "Artboard 1.png";
+        //img.src = "Untitled-2.png";
     
       var a1, a2;
       var imageAspect = _size[1] / _size[0];
@@ -203,8 +203,8 @@
         requestAnimationFrame(update);
         // Reset velocity when mouse not moving
         if (!velocity.needsUpdate) {
-         mouse.set(-1);
-          velocity.set(0);
+            mouse.set(-1);
+            velocity.set(0);
         }
         velocity.needsUpdate = false;
         // Update flowmap inputs
