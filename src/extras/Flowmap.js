@@ -135,7 +135,7 @@ const fragment = /* glsl */ `
     varying vec2 vUv;
 
     void main() {
-        vec4 color = texture2D(tMap, vUv);
+        vec4 color = texture2D(tMap, vUv) * uDissipation;
 
         vec2 cursor = vUv - uMouse;
         cursor.x *= uAspect;

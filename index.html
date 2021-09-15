@@ -48,13 +48,13 @@
     
                 // vec2 uv = .5 * gl_FragCoord.xy / res.xy ;
                 vec2 myUV = (uv - vec2(0.5))*res.zw + vec2(0.5);
-                myUV -= flow.xy ;
+                myUV -= flow.xy  * 0.5;
     
                 vec2 myUV2 = (uv - vec2(0.5))*res.zw + vec2(0.5);
-                myUV2 -= flow.xy;
+                myUV2 -= flow.xy * 0.25;
     
                 vec2 myUV3 = (uv - vec2(0.5))*res.zw + vec2(0.5);
-                myUV3 -= flow.xy;
+                myUV3 -= flow.xy * 0.55;
     
                 vec3 tex = texture2D(tWater, myUV).rgb;
                 vec3 tex2 = texture2D(tWater, myUV2).rgb;
@@ -100,9 +100,10 @@
         aspect = window.innerWidth / window.innerHeight;
       }
       var flowmap = new Flowmap(gl, {
-        falloff: 0.5,
-        dissipation: 0.999,
-        alpha: 0.5
+        falloff: 0.25,
+        dissipation: 0.9999,
+        alpha: 0.15,
+        size: 512
       });
       // Triangle that includes -1 to 1 range for 'position', and 0 to 1 range for 'uv'.
       var geometry = new Geometry(gl, {
@@ -119,8 +120,11 @@
       var img = new Image();
       img.onload = () => (texture.image = img);
       img.crossOrigin = "Anonymous";
-        img.src = "Artboard 1.png";
+        //img.src = "Artboard 1.png";
         //img.src = "Untitled-2.png";
+        //img.src = "Artboard 11.png";
+        img.src = "Artboard 11.jpg";
+        
     
       var a1, a2;
       var imageAspect = _size[1] / _size[0];
