@@ -65,7 +65,6 @@ var fragment = `
 
 var _size = [1920, 1920];
 var renderer = new Renderer({ dpr: Math.min(2,window.devicePixelRatio) });
-console.log(window.devicePixelRatio);
 var gl = renderer.gl;
 document.body.appendChild(gl.canvas);
 var aspect = 1;
@@ -99,9 +98,9 @@ function resize() {
   aspect = window.innerWidth / window.innerHeight;
 }
 var flowmap = new Flowmap(gl, {
-  falloff: 0.35,
-  dissipation: 0.9996,
-  alpha: 0.15,
+  falloff: 0.15,
+  dissipation: 0.9995,
+  alpha: 0.05,
   size: 512
 });
 var geometry = new Geometry(gl, {
@@ -130,7 +129,7 @@ var ctx=canvas.getContext("2d");
 ctx.translate(Math.max(canvas.width,canvas.height)/2, Math.max(canvas.width,canvas.height)/2 * -2);
 ctx.rotate(getRadianAngle(45));
 ctx.scale(2,2);
-var numberOfStripes = window.innerHeight/4;
+var numberOfStripes = window.innerHeight/3;
 var dur = 1;
 var del = 1;
 var tl = gsap.timeline({repeat: -1,  onUpdate:changeColor });
@@ -144,9 +143,11 @@ tl2.to(colors, {color2: '#7178FF', duration: dur*2, ease: "expo.out", delay: del
 tl2.to(colors, {color2: '#936200', duration: dur*2, ease: "expo.out", delay: del});
 tl2.pause();
 var $p = 0; 
+var $a = 0;
 changeColor(); 
 
 function changeColor(){
+  //ctx.rotate(getRadianAngle($a++));
 for (var i=0;i<numberOfStripes;i++){
   $p++;
 var thickness = 1920 / numberOfStripes;

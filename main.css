@@ -62,11 +62,20 @@ line-height: 1;
    writing-mode: vertical-rl;
    // padding:1rem;
 }
+@media (max-device-height : 1024px) {
+  #header{
+    width: calc(16px + 2rem);
+    padding: 1rem;
+  }
+}
 @media (orientation: landscape) and (max-device-height : 1024px) {
   #header{
     flex-flow: row;
     height: auto;
     width: calc(100% - 2rem);
+    padding: 1rem;
+    top:unset;
+    bottom:1rem;
   }
   #header div{
     writing-mode: lr;
