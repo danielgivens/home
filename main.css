@@ -1,13 +1,25 @@
+@font-face {
+    font-family: 'enduronarrow-regular';
+        src: 
+            url('fonts/enduronarrowweb-regular-TRIAL.eot?#iefix') format('embedded-opentype'),
+            url('fonts/enduronarrowweb-regular-TRIAL.woff') format('woff');
+    }
+
 * {
     box-sizing: border-box;
 }
 canvas {
       position: absolute;
-      z-index: -999;
-      width: 100vw;
+      z-index: 1;
+      width: 100%;
       height: 100vh;
       top: 0;
       left: 0;
+      
+    }
+    #canvas{
+       visibility: hidden;
+       z-index: -999;
     }
     
     
@@ -16,7 +28,50 @@ body,
 html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
-    height: 100%;
+  margin: 0;
+  padding: 0;
+width: 100%;
+height: 100vh;
+font-family: 'enduronarrow-regular', 'Arial Narrow', sans-serif;
+overflow: hidden;
     overscroll-behavior-y: contain;
+    font-size: 16px;
+}
+
+#header{
+    position: absolute;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    background:#292929;
+    color: white;
+    border-radius:2rem;
+    padding:2rem;
+    right:1rem;
+    z-index: 10;
+    top:1rem;
+    height: calc(100vh - 2rem);
+flex-flow: column;
+width: calc(16px + 4rem);
+line-height: 1;
+    
+}
+#header div{
+   
+   writing-mode: vertical-rl;
+   // padding:1rem;
+}
+
+#pane{
+    position: absolute;
+    color:#292929;
+    background: white;
+    border-radius:2rem;
+    padding:2rem;
+    left:1rem;
+    z-index: 10;
+    top:1rem;
+}
+#pane p{
+    margin: 0;
 }

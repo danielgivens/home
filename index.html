@@ -7,125 +7,196 @@
             name="viewport"
             content="width=device-width,  viewport-fit=cover, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
         />
-
-        <title>TEMP</title>
+        <script src="gsap.min.js"></script>
+        <title>Daniel Givens, Designer/Developer</title>
         <link href="main.css" rel="stylesheet" />
     </head>
     <body>
         <script type="module">
-            import { Renderer, Program, Geometry, Texture, Mesh, Vec2, Vec4, Flowmap, Triangle } from './src/index.mjs';
+import { Renderer, Program, Geometry, Texture, Mesh, Vec2, Vec4, Flowmap, Triangle } from './src/index.mjs';
+var vertex = `
+  attribute vec2 uv;
+  attribute vec2 position;
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = vec4(position, 0, 1);
+  }
+`;
+var fragment = `
+  precision highp float;
+  precision highp int;
+  uniform sampler2D tWater;
+  uniform sampler2D tFlow;
+  uniform float uTime;
+  varying vec2 vUv;
+  uniform vec4 res;
+  uniform vec2 img;
+  
+  vec2 centeredAspectRatio(vec2 uvs, vec2 factor){
+    return uvs * factor - factor /2. + 0.5;
+  }
+  
+  void main() {
+    
+    // R and G values are velocity in the x and y direction
+    // B value is the velocity length
+    vec3 flow = texture2D(tFlow, vUv).rgb;
+    
+    vec2 uv = .5 * gl_FragCoord.xy / res.xy ;
+    
+    // vec2 uv = .5 * gl_FragCoord.xy / res.xy ;
+    vec2 myUV = (uv - vec2(0.5))*res.zw + vec2(0.5);
+    myUV -= flow.xy  * 0.5;
+    
+    vec2 myUV2 = (uv - vec2(0.5))*res.zw + vec2(0.5);
+    myUV2 -= flow.xy * 0.25;
+    
+    vec2 myUV3 = (uv - vec2(0.5))*res.zw + vec2(0.5);
+    myUV3 -= flow.xy * 0.55;
+    
+    vec3 tex = texture2D(tWater, myUV).rgb;
+    vec3 tex2 = texture2D(tWater, myUV2).rgb;
+    vec3 tex3 = texture2D(tWater, myUV3).rgb;
+    
+    gl_FragColor = vec4(tex.r, tex.g, tex.b, 1.0);
+  }
+`;
 
-            var vertex = `
-            attribute vec2 uv;
-            attribute vec2 position;
-            varying vec2 vUv;
-            void main() {
-                    vUv = uv;
-                    gl_Position = vec4(position, 0, 1);
-            }
-    `;
-    var fragment = `
-            precision highp float;
-            precision highp int;
-            uniform sampler2D tWater;
-            uniform sampler2D tFlow;
-            uniform float uTime;
-            varying vec2 vUv;
-            uniform vec4 res;
-            uniform vec2 img;
-    
-            vec2 centeredAspectRatio(vec2 uvs, vec2 factor){
-                    return uvs * factor - factor /2. + 0.5;
-            }
-    
-            void main() {
-    
-                // R and G values are velocity in the x and y direction
-                // B value is the velocity length
-                vec3 flow = texture2D(tFlow, vUv).rgb;
-    
-                vec2 uv = .5 * gl_FragCoord.xy / res.xy ;
-    
-                // vec2 uv = .5 * gl_FragCoord.xy / res.xy ;
-                vec2 myUV = (uv - vec2(0.5))*res.zw + vec2(0.5);
-                myUV -= flow.xy  * 0.5;
-    
-                vec2 myUV2 = (uv - vec2(0.5))*res.zw + vec2(0.5);
-                myUV2 -= flow.xy * 0.25;
-    
-                vec2 myUV3 = (uv - vec2(0.5))*res.zw + vec2(0.5);
-                myUV3 -= flow.xy * 0.55;
-    
-                vec3 tex = texture2D(tWater, myUV).rgb;
-                vec3 tex2 = texture2D(tWater, myUV2).rgb;
-                vec3 tex3 = texture2D(tWater, myUV3).rgb;
-    
-                gl_FragColor = vec4(tex.r, tex.g, tex.b, 1.0);
-            }
-    `;
-    
-    {
-      var _size = [1080, 1080];
-      var renderer = new Renderer({ dpr: 2 });
-      var gl = renderer.gl;
-      document.body.appendChild(gl.canvas);
-    
-      // Variable inputs to control flowmap
-      var aspect = 1;
-      var mouse = new Vec2(-1);
-      var velocity = new Vec2();
-      function resize() {
-        gl.canvas.width = window.innerWidth * 2;
-        gl.canvas.height = window.innerHeight * 2;
-        gl.canvas.style.width = window.innerWidth + "px";
-        gl.canvas.style.height = window.innerHeight + "px";
-    
-        var a1, a2;
-        var imageAspect = _size[1] / _size[0];
-        if (window.innerHeight / window.innerWidth < imageAspect) {
-          a1 = 1;
-          a2 = window.innerHeight / window.innerWidth / imageAspect;
-        } else {
-          a1 = (window.innerWidth / window.innerHeight) * imageAspect;
-          a2 = 1;
-        }
-        mesh.program.uniforms.res.value = new Vec4(
-          window.innerWidth,
-          window.innerHeight,
-          a1,
-          a2
-        );
-    
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        aspect = window.innerWidth / window.innerHeight;
+var _size = [1024, 1024];
+var renderer = new Renderer({ dpr: 2 });
+var gl = renderer.gl;
+document.body.appendChild(gl.canvas);
+var aspect = 1;
+var mouse = new Vec2(-1);
+var velocity = new Vec2();
+function resize() {
+  gl.canvas.width = window.innerWidth * 2;
+  gl.canvas.height = window.innerHeight * 2;
+  gl.canvas.style.width = window.innerWidth + "px";
+  gl.canvas.style.height = window.innerHeight + "px";
+  
+  var a1, a2;
+  var imageAspect = _size[1] / _size[0];
+  if (window.innerHeight / window.innerWidth < imageAspect) {
+    a1 = 1;
+    a2 = window.innerHeight / window.innerWidth / imageAspect;
+  } else {
+    a1 = (window.innerWidth / window.innerHeight) * imageAspect;
+    a2 = 1;
+  }
+  mesh.program.uniforms.res.value = new Vec4(
+    window.innerWidth,
+    window.innerHeight,
+    a1,
+    a2
+  );
+  
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  aspect = window.innerWidth / window.innerHeight;
+}
+var flowmap = new Flowmap(gl, {
+  falloff: 0.35,
+  dissipation: 0.9996,
+  alpha: 0.25,
+  size: 1024
+});
+var geometry = new Geometry(gl, {
+  position: {
+    size: 2,
+    data: new Float32Array([-1, -1, 3, -1, -1, 3])
+  },
+  uv: { size: 2, data: new Float32Array([0, 0, 2, 0, 0, 2]) }
+});
+var texture = new Texture(gl, {
+  minFilter: gl.LINEAR,
+  magFilter: gl.LINEAR
+});
+var colors = {
+  color1: "#f4ae40",
+  color2: "#ea4d46",
+  color3: "#5088c2",
+  color4: "#d9d7d4",
+  color5: "#343a33"
+};
+function getRadianAngle(degreeValue) {
+  return degreeValue * Math.PI / 180;
+} 
+var canvas=document.getElementById("canvas");
+var ctx=canvas.getContext("2d");
+ctx.translate(canvas.width/2, canvas.height/2 * -1);
+ctx.rotate(getRadianAngle(45));
+ctx.scale(2,2);
+var numberOfStripes = window.innerHeight/4;
+var dur = 1;
+var del = 1;
+var tl = gsap.timeline({repeat: -1,  onUpdate:changeColor });
+tl.to(colors, {color1: '#7178FF', duration: dur, ease: "expo.out", delay: del});
+tl.to(colors, {color1: '#ffffff', duration: dur, ease: "expo.out", delay: del});
+tl.to(colors, {color1: '#CCFF7B', duration: dur, ease: "expo.out", delay: del});
+tl.pause();
+var tl2 = gsap.timeline({repeat: -1 });
+tl2.to(colors, {color2: '#292929', duration: dur*2, ease: "expo.out", delay: del});
+tl2.to(colors, {color2: '#7178FF', duration: dur*2, ease: "expo.out", delay: del});
+tl2.to(colors, {color2: '#936200', duration: dur*2, ease: "expo.out", delay: del});
+tl2.pause();
+var $p = 0; 
+changeColor(); 
+
+function changeColor(){
+for (var i=0;i<numberOfStripes;i++){
+  $p++;
+var thickness = 1920 / numberOfStripes;
+ctx.beginPath();
+ctx.strokeStyle = i % 2?colors.color1:colors.color2;
+if($p === 1){
+  ctx.strokeStyle = colors.color1;
+}
+if($p === 2){
+  ctx.strokeStyle = colors.color2;
+}
+if($p === 3){
+  ctx.strokeStyle = colors.color3;
+}
+if($p === 4){
+  ctx.strokeStyle = colors.color4;
+}
+if($p === 5){
+  ctx.strokeStyle = colors.color5;
+  $p= 0;
+}
+
+ctx.lineWidth =thickness;  
+
+ctx.moveTo(0,i*thickness + thickness/2);
+ctx.lineTo(1920,i*thickness+thickness/2);
+ctx.stroke();
+}     
+}
+//drawCheckeredBackground(canvas, numberOfStripes/5, numberOfStripes/5)
+function drawCheckeredBackground(can, nRow, nCol) {
+  ctx.fillStyle = colors.color2;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = colors.color1;
+ // var ctx = can.getContext("2d");
+  var w = can.width;
+  var h = can.height;
+
+  nRow = nRow || 20;    // default number of rows
+  nCol = nCol || 20;    // default number of columns
+
+  w /= nCol;            // width of a block
+  h /= nRow;            // height of a block
+
+  for (var i = 0; i < nRow; ++i) {
+      for (var j = 0, col = nCol / 2; j < col; ++j) {
+          ctx.rect(2 * j * w + (i % 2 ? 0 : w), i * h, w, h);
       }
-      var flowmap = new Flowmap(gl, {
-        falloff: 0.25,
-        dissipation: 0.9999,
-        alpha: 0.15,
-        size: 512
-      });
-      // Triangle that includes -1 to 1 range for 'position', and 0 to 1 range for 'uv'.
-      var geometry = new Geometry(gl, {
-        position: {
-          size: 2,
-          data: new Float32Array([-1, -1, 3, -1, -1, 3])
-        },
-        uv: { size: 2, data: new Float32Array([0, 0, 2, 0, 0, 2]) }
-      });
-      var texture = new Texture(gl, {
-        minFilter: gl.LINEAR,
-        magFilter: gl.LINEAR
-      });
-      var img = new Image();
-      img.onload = () => (texture.image = img);
-      img.crossOrigin = "Anonymous";
-        //img.src = "Artboard 1.png";
-        //img.src = "Untitled-2.png";
-        //img.src = "Artboard 11.png";
-        img.src = "Artboard 11.jpg";
-        
-    
+  }
+
+  ctx.fill();
+}
+texture.image = canvas;
       var a1, a2;
       var imageAspect = _size[1] / _size[0];
       if (window.innerHeight / window.innerWidth < imageAspect) {
@@ -146,9 +217,6 @@
             value: new Vec4(window.innerWidth, window.innerHeight, a1, a2)
           },
           img: { value: new Vec2(_size[1], _size[0]) },
-          // Note that the uniform is applied without using an object and value property
-          // This is because the class alternates this texture between two render targets
-          // and updates the value property after each render.
           tFlow: flowmap.uniform
         }
       });
@@ -160,16 +228,26 @@
       // Create handlers to get mouse position and velocity
       var isTouchCapable = "ontouchstart" in window;
       if (isTouchCapable) {
-        window.addEventListener("touchstart", updateMouse, false);
-        window.addEventListener("touchmove", updateMouse, { passive: false });
+        window.addEventListener("touchend", onMouseUp, false);
+        window.addEventListener("touchstart", onMouseDown, false);
+        window.addEventListener("touchmove", updateMouse, false);
       } else {
-        window.addEventListener("mousemove", updateMouse, false);
+      window.addEventListener("mousedown", onMouseDown, false);
+      window.addEventListener("mouseup", onMouseUp, false);
+      window.addEventListener("mousemove", updateMouse, false);
       }
       var lastTime;
+      var mouseDown = true;
       var lastMouse = new Vec2();
+      function onMouseDown(){
+        mouseDown = true;
+      }
+      function onMouseUp(){
+        mouseDown = true;
+      }
       function updateMouse(e) {
-        e.preventDefault();
-    
+       // e.preventDefault();
+       if(mouseDown){
         if (e.changedTouches && e.changedTouches.length) {
           e.x = e.changedTouches[0].pageX;
           e.y = e.changedTouches[0].pageY;
@@ -202,6 +280,7 @@
         // Flag update to prevent hanging velocity values when not moving
         velocity.needsUpdate = true;
       }
+      }
       requestAnimationFrame(update);
       function update(t) {
         requestAnimationFrame(update);
@@ -210,6 +289,7 @@
             mouse.set(-1);
             velocity.set(0);
         }
+        texture.needsUpdate = true;
         velocity.needsUpdate = false;
         // Update flowmap inputs
         flowmap.aspect = aspect;
@@ -220,10 +300,16 @@
         program.uniforms.uTime.value = t * 0.001;
         renderer.render({ scene: mesh });
       }
-    }
+
     
     
     
         </script>
+        <canvas id="canvas" width=1920 height=1920></canvas>
+        <div id="header">
+          <div>Daniel Givens</div>
+          <div>Designer/Developer</div>
+          <div>mail@danielgivens.com</div>
+        </div>
     </body>
 </html>
