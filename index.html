@@ -64,7 +64,7 @@ var fragment = `
 `;
 var globalSize = Math.max(window.innerWidth, window.innerHeight);
 var _size = [globalSize, globalSize];
-var renderer = new Renderer({ dpr: window.devicePixelRatio });
+var renderer = new Renderer({ dpr: Math.min(2, window.devicePixelRatio) });
 var gl = renderer.gl;
 document.body.appendChild(gl.canvas);
 var aspect = 1;
