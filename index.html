@@ -63,8 +63,8 @@ var fragment = `
   }
 `;
 
-var _size = [1024, 1024];
-var renderer = new Renderer({ dpr: 2 });
+var _size = [1920, 1920];
+var renderer = new Renderer({ dpr: window.devicePixelRatio });
 var gl = renderer.gl;
 document.body.appendChild(gl.canvas);
 var aspect = 1;
@@ -98,8 +98,8 @@ function resize() {
 var flowmap = new Flowmap(gl, {
   falloff: 0.35,
   dissipation: 0.9996,
-  alpha: 0.25,
-  size: 1024
+  alpha: 0.15,
+  size: 512
 });
 var geometry = new Geometry(gl, {
   position: {
