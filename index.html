@@ -63,8 +63,12 @@ var fragment = `
   }
 `;
 var globalSize = Math.max(window.innerWidth, window.innerHeight);
+var globalSize = 2880;
 var _size = [globalSize, globalSize];
-var renderer = new Renderer({ dpr: Math.min(2, window.devicePixelRatio) });
+var canvas=document.getElementById("canvas");
+canvas.style.width = globalSize;
+canvas.style.height = globalSize;
+var renderer = new Renderer({ dpr: window.devicePixelRatio });
 var gl = renderer.gl;
 document.body.appendChild(gl.canvas);
 var aspect = 1;
@@ -115,21 +119,19 @@ var texture = new Texture(gl, {
   magFilter: gl.LINEAR
 });
 var colors = {
-  color1: "#f4ae40",
-  color2: "#ea4d46",
-  color3: "#5088c2",
+  color1: "#e83a24",
+  color2: "#fefd5e",
+  color3: "#7df8fb",
   color4: "#d9d7d4",
-  color5: "#292929"
+  color5: "#080f2a"
 };
 function getRadianAngle(degreeValue) {
   return degreeValue * Math.PI / 180;
 } 
-var canvas=document.getElementById("canvas");
-canvas.width = globalSize;
-canvas.height = globalSize;
+
 
 var ctx=canvas.getContext("2d");
-//ctx.translate(Math.max(canvas.width,canvas.height)/2, Math.max(canvas.width,canvas.height)/2 * -2);
+ctx.translate(0,0);
 //ctx.rotate(getRadianAngle(45));
 //ctx.scale(2,2);
 var numberOfStripes = globalSize/10;
@@ -152,7 +154,7 @@ var $a = 45;
 changeColor(); 
 function changeColor(){
 
-  for (var i=0;i<numberOfStripes;i++){
+  for (var i=0;i<numberOfStripes*2;i++){
     $p++;
     var thickness = globalSize / numberOfStripes;
     ctx.beginPath();
@@ -161,36 +163,48 @@ function changeColor(){
       ctx.strokeStyle = colors.color1;
     }
     if($p === 2){
-      ctx.strokeStyle = colors.color3;
+      ctx.strokeStyle = colors.color2;
       
     }
     if($p === 3){
-      ctx.strokeStyle = colors.color2;
-      $p= 0;
-    }
-    if($p === 4){
-      ctx.strokeStyle = colors.color2;
-      $p= 0;
-    }
-    if($p === 5){
       ctx.strokeStyle = colors.color3;
      // $p= 0;
     }
-if($p === 6){
-  ctx.strokeStyle = colors.color3;
-  $p= 0;
-}    
+    if($p === 4){
+      ctx.strokeStyle = colors.color5;
+     $p= 0;
+    }
+    if($p === 5){
+      ctx.strokeStyle = colors.color5;
+     // $p= 0;
+    
+    }
+    if($p === 6){
+      ctx.strokeStyle = colors.color3;
+      $p= 0;
+    }    
     ctx.lineWidth =thickness;  
     
-   // ctx.moveTo(0,i*thickness + thickness/2);
-   // ctx.lineTo(globalSize,i*thickness+thickness/2);
-    ctx.moveTo(i*thickness + thickness/2 - globalSize,0);
-     ctx.lineTo(0 + i*thickness+thickness/2,globalSize);
+   //ctx.moveTo(0,i*thickness + thickness/2);
+   //ctx.lineTo(globalSize,i*thickness+thickness/2);
+   ctx.moveTo(i*thickness + thickness/2 - globalSize,0);
+   ctx.lineTo(0 + i*thickness+thickness/2,globalSize);
     ctx.stroke();
-  }     
+  }
+  /*for (var i=0;i<numberOfStripes*2;i++){
+    var thickness = 300 / numberOfStripes;
+    ctx.beginPath();
+    ctx.strokeStyle = i % 2?colors.color1:colors.color2;
+    ctx.lineWidth =thickness;
+    ctx.lineCap = 'round';
+    
+     ctx.moveTo(i*thickness + thickness/2 - 300,0);
+    ctx.lineTo(0 + i*thickness+thickness/2,300);
+    ctx.stroke();
+  } */  
 }
 var drawGrid = function(can, w, h, step) {
-  ctx.fillStyle = 'white';
+  ctx.fillStyle = colors.color1;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath(); 
   for (var x=0;x<=w;x+=step) {
@@ -198,8 +212,8 @@ var drawGrid = function(can, w, h, step) {
           ctx.lineTo(x, h);
   }
   // set the color of the line
-  ctx.strokeStyle = colors.color3;
-  ctx.lineWidth =1;
+  ctx.strokeStyle = 'rgb(255,0,0)';
+  ctx.lineWidth = 1;
   // the stroke will actually paint the current path 
   ctx.stroke(); 
   // for the sake of the example 2nd path
@@ -209,17 +223,17 @@ var drawGrid = function(can, w, h, step) {
           ctx.lineTo(w, y);
   }
   // set the color of the line
-  ctx.strokeStyle = colors.color3;
+  ctx.strokeStyle = 'rgb(20,20,20)';
   // just for fun
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 5;
   // for your original question - you need to stroke only once
   ctx.stroke(); 
 };
 
 
-//drawGrid(canvas, globalSize, globalSize, numberOfStripes/12);
+//drawGrid(canvas, globalSize, globalSize, numberOfStripes/2);
 //drawCheckeredBackground(canvas, numberOfStripes, numberOfStripes)
-function drawCheckeredBackground(can, nRow, nCol) {
+/*function drawCheckeredBackground(can, nRow, nCol) {
   ctx.fillStyle = colors.color1;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = colors.color3;
@@ -240,7 +254,7 @@ function drawCheckeredBackground(can, nRow, nCol) {
   }
 
   ctx.fill();
-}
+}*/
 texture.image = canvas;
       var a1, a2;
       var imageAspect = _size[1] / _size[0];

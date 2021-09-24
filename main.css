@@ -74,8 +74,8 @@ line-height: 1;
     height: auto;
     width: calc(100% - 2rem);
     padding: 1rem;
-    top:unset;
-    bottom:1rem;
+    //top:unset;
+    //bottom:1rem;
   }
   #header div{
     writing-mode: lr;
