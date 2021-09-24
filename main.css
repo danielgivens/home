@@ -17,7 +17,11 @@ canvas {
       left: 0;
       
     }
-    #canvas{
+    #pattern{
+       visibility: hidden;
+       z-index: -999;
+    }
+   #buffer{
        visibility: hidden;
        z-index: -999;
     }
@@ -47,6 +51,7 @@ overflow: hidden;
     color: white;
     border-radius:2rem;
     padding:2rem;
+    //left:50%;
     right:1rem;
     z-index: 10;
     top:1rem;
@@ -54,6 +59,7 @@ overflow: hidden;
 flex-flow: column;
 width: calc(16px + 4rem);
 line-height: 1;
+//transform: translateX(-50%);
     
 }
 
@@ -62,13 +68,13 @@ line-height: 1;
    writing-mode: vertical-rl;
    // padding:1rem;
 }
-@media (max-device-height : 1024px) {
+@media (max-height : 960px) {
   #header{
     width: calc(16px + 2rem);
     padding: 1rem;
   }
 }
-@media (orientation: landscape) and (max-device-height : 1024px) {
+@media (orientation: landscape) and (max-height : 960px) {
   #header{
     flex-flow: row;
     height: auto;

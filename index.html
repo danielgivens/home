@@ -7,282 +7,175 @@
             name="viewport"
             content="width=device-width,  viewport-fit=cover, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
         />
-        <script src="gsap.min.js"></script>
+        <script src="stackblur.min.js"></script>
         <title>Daniel Givens, Designer/Developer</title>
         <link href="main.css" rel="stylesheet" />
     </head>
     <body>
-        <script type="module">
-import { Renderer, Program, Geometry, Texture, Mesh, Vec2, Vec4, Flowmap, Triangle } from './src/index.mjs';
-var vertex = `
-  attribute vec2 uv;
-  attribute vec2 position;
-  varying vec2 vUv;
-  void main() {
-    vUv = uv;
-    gl_Position = vec4(position, 0, 1);
-  }
-`;
-var fragment = `
-  precision highp float;
-  precision highp int;
-  uniform sampler2D tWater;
-  uniform sampler2D tFlow;
-  uniform float uTime;
-  varying vec2 vUv;
-  uniform vec4 res;
-  uniform vec2 img;
-  
-  vec2 centeredAspectRatio(vec2 uvs, vec2 factor){
-    return uvs * factor - factor /2. + 0.5;
-  }
-  
-  void main() {
-    
-    // R and G values are velocity in the x and y direction
-    // B value is the velocity length
-    vec3 flow = texture2D(tFlow, vUv).rgb;
-    
-    vec2 uv = .5 * gl_FragCoord.xy / res.xy ;
-    
-    // vec2 uv = .5 * gl_FragCoord.xy / res.xy ;
-    vec2 myUV = (uv - vec2(0.5))*res.zw + vec2(0.5);
-    myUV -= flow.xy  * 0.5;
-    
-    vec2 myUV2 = (uv - vec2(0.5))*res.zw + vec2(0.5);
-    myUV2 -= flow.xy * 0.25;
-    
-    vec2 myUV3 = (uv - vec2(0.5))*res.zw + vec2(0.5);
-    myUV3 -= flow.xy * 0.55;
-    
-    vec3 tex = texture2D(tWater, myUV).rgb;
-    vec3 tex2 = texture2D(tWater, myUV2).rgb;
-    vec3 tex3 = texture2D(tWater, myUV3).rgb;
-    
-    gl_FragColor = vec4(tex.r, tex.g, tex.b, 1.0);
-  }
-`;
-var globalSize = Math.max(window.innerWidth, window.innerHeight);
-var globalSize = 1920;
-var _size = [globalSize, globalSize];
-var canvas=document.getElementById("canvas");
-//canvas.style.width = globalSize;
-//canvas.style.height = globalSize;
-var renderer = new Renderer({ dpr: Math.min(2,window.devicePixelRatio) });
-var gl = renderer.gl;
-document.body.appendChild(gl.canvas);
-var aspect = 1;
-var mouse = new Vec2(-1);
-var velocity = new Vec2();
-function resize() {
-  var vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', vh + 'px');
-  gl.canvas.width = window.innerWidth * 2;
-  gl.canvas.height = window.innerHeight * 2;
-  gl.canvas.style.width = window.innerWidth + "px";
-  gl.canvas.style.height = window.innerHeight + "px";
-  
-  var a1, a2;
-  var imageAspect = _size[1] / _size[0];
-  if (window.innerHeight / window.innerWidth < imageAspect) {
-    a1 = 1;
-    a2 = window.innerHeight / window.innerWidth / imageAspect;
-  } else {
-    a1 = (window.innerWidth / window.innerHeight) * imageAspect;
-    a2 = 1;
-  }
-  mesh.program.uniforms.res.value = new Vec4(
-    window.innerWidth,
-    window.innerHeight,
-    a1,
-    a2
-  );
-  
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  aspect = window.innerWidth / window.innerHeight;
-}
-var flowmap = new Flowmap(gl, {
-  falloff: 0.34,
-  dissipation: 0.9995,
-  alpha: 0.8,
-  size: globalSize
-});
-var geometry = new Geometry(gl, {
-  position: {
-    size: 2,
-    data: new Float32Array([-1, -1, 3, -1, -1, 3])
-  },
-  uv: { size: 2, data: new Float32Array([0, 0, 2, 0, 0, 2]) }
-});
-var texture = new Texture(gl, {
-  minFilter: gl.LINEAR,
-  magFilter: gl.LINEAR
-});
-var colors = {
-  color1: "#F91647",
-  color2: "#1071FF",
-  color3: "#C5FC77",
-  color4: "#BC7D00",
-  color5: "#494949",
-  color6: "#EDEDED"
-};
-function getRadianAngle(degreeValue) {
-  return degreeValue * Math.PI / 180;
-} 
-
-
-var ctx=canvas.getContext("2d");
-//ctx.translate(0,globalSize/2*-1);
-//ctx.rotate(getRadianAngle(45));
-//ctx.scale(2,2);
-var numberOfStripes = globalSize/15;
-var dur = 1;
-var del = 1;
-var tl = gsap.timeline({repeat: -1,  onUpdate:changeColor });
-tl.to(colors, {color1: '#7178FF', duration: dur, ease: "expo.out", delay: del});
-tl.to(colors, {color1: '#ffffff', duration: dur, ease: "expo.out", delay: del});
-tl.to(colors, {color1: '#CCFF7B', duration: dur, ease: "expo.out", delay: del});
-tl.pause();
-var tl2 = gsap.timeline({repeat: -1 });
-tl2.to(colors, {color2: '#292929', duration: dur*2, ease: "expo.out", delay: del});
-tl2.to(colors, {color2: '#7178FF', duration: dur*2, ease: "expo.out", delay: del});
-tl2.to(colors, {color2: '#936200', duration: dur*2, ease: "expo.out", delay: del});
-tl2.pause();
-
-var $p = 0; 
-var $a = 45;
-
-changeColor(); 
-function changeColor(){
-
-  for (var i=0;i<numberOfStripes*2;i++){
-    $p++;
-    var thickness = globalSize / numberOfStripes;
-    ctx.beginPath();
-    ctx.strokeStyle = i % 2?colors.color1:colors.color2;
-    if($p === 1){
-      ctx.strokeStyle = colors.color1;
-    }
-    if($p === 2){
-      ctx.strokeStyle = colors.color2;
+    <script type="module">
+      import { Renderer, Program, Geometry, Texture, Mesh, Vec2, Vec4, Flowmap, Triangle } from './src/index.mjs';
+      var vertex = `
+        attribute vec2 uv;
+        attribute vec2 position;
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position, 0, 1);
+        }
+      `;
+      var fragment = `
+        precision highp float;
+        precision highp int;
+        uniform sampler2D tWater;
+        uniform sampler2D tFlow;
+        uniform float uTime;
+        varying vec2 vUv;
+        uniform vec4 res;
+        uniform vec2 img;
+        
+        vec2 centeredAspectRatio(vec2 uvs, vec2 factor){
+          return uvs * factor - factor /2. + 0.5;
+        }
+        
+        void main() {
+          
+          // R and G values are velocity in the x and y direction
+          // B value is the velocity length
+          vec3 flow = texture2D(tFlow, vUv).rgb;
+          
+          vec2 uv = .5 * gl_FragCoord.xy / res.xy ;
+          
+          // vec2 uv = .5 * gl_FragCoord.xy / res.xy ;
+          vec2 myUV = (uv - vec2(0.5))*res.zw + vec2(0.5);
+          myUV -= flow.xy  * 0.5;
+          
+          vec2 myUV2 = (uv - vec2(0.5))*res.zw + vec2(0.5);
+          myUV2 -= flow.xy * 0.25;
+          
+          vec2 myUV3 = (uv - vec2(0.5))*res.zw + vec2(0.5);
+          myUV3 -= flow.xy * 0.55;
+          
+          vec3 tex = texture2D(tWater, myUV).rgb;
+          vec3 tex2 = texture2D(tWater, myUV2).rgb;
+          vec3 tex3 = texture2D(tWater, myUV3).rgb;
+          
+          gl_FragColor = vec4(tex.r, tex.g, tex.b, 1.0);
+        }
+      `;
+      var globalSize = Math.max(window.innerWidth, window.innerHeight);
+      var globalSize = 1920;
+      var _size = [globalSize, globalSize];
+      var canvas=document.getElementById("pattern");
+      var buffer=document.getElementById("pattern");
       
-    }
-    if($p === 3){
-      ctx.strokeStyle = colors.color3;
-     // $p= 0;
-    }
-    if($p === 4){
-      ctx.strokeStyle = colors.color4;
+      var renderer = new Renderer({ dpr: 2 });
+      var gl = renderer.gl;
+      document.body.appendChild(gl.canvas);
+      var aspect = 1;
+      var mouse = new Vec2(-1);
+      var velocity = new Vec2();
+      function resize() {
+        var vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', vh + 'px');
+        gl.canvas.width = window.innerWidth * 2;
+        gl.canvas.height = window.innerHeight * 2;
+        gl.canvas.style.width = window.innerWidth + "px";
+        gl.canvas.style.height = window.innerHeight + "px";
+        
+        var a1, a2;
+        var imageAspect = _size[1] / _size[0];
+        if (window.innerHeight / window.innerWidth < imageAspect) {
+          a1 = 1;
+          a2 = window.innerHeight / window.innerWidth / imageAspect;
+        } else {
+          a1 = (window.innerWidth / window.innerHeight) * imageAspect;
+          a2 = 1;
+        }
+        mesh.program.uniforms.res.value = new Vec4(
+          window.innerWidth,
+          window.innerHeight,
+          a1,
+          a2
+        );
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        aspect = window.innerWidth / window.innerHeight;
+      }
+      var flowmap = new Flowmap(gl, {
+        falloff: 0.34,
+        dissipation: 0.9995,
+        alpha: 0.8,
+        size: globalSize
+      });
+      var geometry = new Geometry(gl, {
+        position: {
+          size: 2,
+          data: new Float32Array([-1, -1, 3, -1, -1, 3])
+        },
+        uv: { size: 2, data: new Float32Array([0, 0, 2, 0, 0, 2]) }
+      });
+      var texture = new Texture(gl, {
+        minFilter: gl.LINEAR,
+        magFilter: gl.LINEAR
+      });
+      var colors = {
+        color1: "#C7FF6E", //yellow
+        color2: "#F91647", //red
+        color3: "#1521FF", //blue
+        color4: "#B57715", //brown
+        color5: "#2D2D2D", //black
+        color6: "#EDEDD3"  //white
+      };
+      function getRadianAngle(degreeValue) {
+        return degreeValue * Math.PI / 180;
+      } 
+      var ctx=canvas.getContext("2d");
+      var bctx=buffer.getContext("2d");
+      var numberOfStripes = globalSize/40;
+      var $p = 0; 
+      drawStripes(); 
+      function drawStripes(){
+        for (var i=0;i<numberOfStripes*2;i++){
+          $p++;
+          var thickness = globalSize / numberOfStripes;
+          bctx.beginPath();
+          bctx.strokeStyle = i % 2?colors.color1:colors.color2;
+          if($p === 1){
+            bctx.strokeStyle = colors.color1;
+          }
+          if($p === 2){
+            bctx.strokeStyle = colors.color2;
+          }
+          if($p === 3){
+            bctx.strokeStyle = colors.color3;
+          }
+          if($p === 4){
+            bctx.strokeStyle = colors.color4;
+          }
+          if($p === 5){
+            bctx.strokeStyle = colors.color5;
+          }
+          if($p === 6){
+            bctx.strokeStyle = colors.color6;
+            $p= 0;
+          }    
+          bctx.lineWidth =thickness;  
+          //ctx.filter = 'blur(5px)';
+          bctx.moveTo(i*thickness + thickness/2 - globalSize,0);
+          bctx.lineTo(0 + i*thickness+thickness/2,globalSize);
+          bctx.stroke();
+          //ctx.filter = 'none';
+        }
+      }
+      bctx.scale(1.1,1.1);
+      bctx.translate(0,-10);
+      ctx.drawImage(canvas,0,0);
+     // cctx.drawImage(buff, 0, 0);
+      StackBlur.canvasRGB(
+        canvas, 0, 0, canvas.width, canvas.height, 10
+      );
      
-    }
-    if($p === 5){
-      ctx.strokeStyle = colors.color5;
-     // $p= 0;
-    
-    }
-    if($p === 6){
-      ctx.strokeStyle = colors.color6;
-      $p= 0;
-    }    
-    ctx.lineWidth =thickness;  
-    ctx.filter = 'blur(3px)';
-   //ctx.moveTo(0,i*thickness + thickness/2);
-   //ctx.lineTo(globalSize,i*thickness+thickness/2);
-   ctx.moveTo(i*thickness + thickness/2 - globalSize,0);
-   ctx.lineTo(0 + i*thickness+thickness/2,globalSize);
-   
-    ctx.stroke();
-    ctx.filter = 'none';
-  }
-  /*for (var i=0;i<numberOfStripes*2;i++){
-    var thickness = 300 / numberOfStripes;
-    ctx.beginPath();
-    ctx.strokeStyle = i % 2?colors.color1:colors.color2;
-    ctx.lineWidth =thickness;
-    ctx.lineCap = 'round';
-    
-     ctx.moveTo(i*thickness + thickness/2 - 300,0);
-    ctx.lineTo(0 + i*thickness+thickness/2,300);
-    ctx.stroke();
-  } */  
-}
-function drawDots() {
-  var x2 = globalSize * Math.cos(5.49779);  // angle in radians
-  var y2 = globalSize * Math.sin(5.49779);  // angle in radians
-  var grd = ctx.createLinearGradient(globalSize/2*-1, 0, x2, y2);
-  //var grd = ctx.createRadialGradient(globalSize/2, globalSize/2,0, globalSize/2, globalSize/2, globalSize);
-    grd.addColorStop(0, colors.color1);
-grd.addColorStop(.25, colors.color2);
-grd.addColorStop(.75, colors.color3);
-    grd.addColorStop(1, colors.color4);
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  var r = 0,
-      cw = 8,
-      ch = 8;
-  
-  for (var x = 1; x < globalSize; x+=cw) {
-    for (var y = 1; y < globalSize; y+=ch) {
-        ctx.fillStyle = '#000000';   
-        ctx.fillRect(x-r/2,y-r/2,r,r);
-      }
-  }
-}
-// drawDots();
-var drawGrid = function(can, w, h, step) {
-var grd = ctx.createLinearGradient(0, 0, 0, globalSize);
-//var grd = ctx.createRadialGradient(0, 0,globalSize, 0, globalSize, 0);
-  grd.addColorStop(0, colors.color3);
-  //grd.addColorStop(.25, colors.color2);
-  //grd.addColorStop(.5, colors.color1);
-  //grd.addColorStop(.75, colors.color4);
-  grd.addColorStop(1, colors.color2);  
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.beginPath(); 
-  for (var x=0;x<=w;x+=step) {
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, h);
-  }
-  ctx.strokeStyle = 'white';
-  ctx.lineWidth = 2;
-  ctx.stroke(); 
-  ctx.beginPath(); 
-  for (var y=0;y<=h;y+=step) {
-          ctx.moveTo(0, y);
-          ctx.lineTo(w, y);
-  }
-  ctx.strokeStyle = 'white';
-  ctx.lineWidth = 2;
-  ctx.stroke(); 
-};
-
-
-//drawGrid(canvas, globalSize, globalSize, numberOfStripes/2);
-//drawCheckeredBackground(canvas, numberOfStripes/4, numberOfStripes/4)
-function drawCheckeredBackground(can, nRow, nCol) {
- // ctx.fillStyle = colors.color1;
- // ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = 'white';
- // var ctx = can.getContext("2d");
-  var w = can.width;
-  var h = can.height;
-
-  nRow = nRow || 20;    // default number of rows
-  nCol = nCol || 20;    // default number of columns
-
-  w /= nCol;            // width of a block
-  h /= nRow;            // height of a block
-
-  for (var i = 0; i < nRow; ++i) {
-      for (var j = 0, col = nCol / 2; j < col; ++j) {
-          ctx.rect(2 * j * w + (i % 2 ? 0 : w), i * h, w, h);
-      }
-  }
-
-  ctx.fill();
-}
-texture.image = canvas;
+      texture.image = canvas
       var a1, a2;
       var imageAspect = _size[1] / _size[0];
       if (window.innerHeight / window.innerWidth < imageAspect) {
@@ -292,7 +185,6 @@ texture.image = canvas;
         a1 = (window.innerWidth / window.innerHeight) * imageAspect;
         a2 = 1;
       }
-    
       var program = new Program(gl, {
         vertex,
         fragment,
@@ -307,20 +199,19 @@ texture.image = canvas;
         }
       });
       var mesh = new Mesh(gl, { geometry, program });
-    
+      
       window.addEventListener("resize", resize, false);
       resize();
-    
-      // Create handlers to get mouse position and velocity
+      
       var isTouchCapable = "ontouchstart" in window;
       if (isTouchCapable) {
         window.addEventListener("touchend", onMouseUp, false);
         window.addEventListener("touchstart", onMouseDown, false);
         window.addEventListener("touchmove", updateMouse, false);
       } else {
-      window.addEventListener("mousedown", onMouseDown, false);
-      window.addEventListener("mouseup", onMouseUp, false);
-      window.addEventListener("mousemove", updateMouse, false);
+        window.addEventListener("mousedown", onMouseDown, false);
+        window.addEventListener("mouseup", onMouseUp, false);
+        window.addEventListener("mousemove", updateMouse, false);
       }
       var lastTime;
       var mouseDown = true;
@@ -332,7 +223,6 @@ texture.image = canvas;
         mouseDown = true;
       }
       function updateMouse(e) {
-       // e.preventDefault();
        if(mouseDown){
         if (e.changedTouches && e.changedTouches.length) {
           e.x = e.changedTouches[0].pageX;
@@ -342,56 +232,41 @@ texture.image = canvas;
           e.x = e.pageX;
           e.y = e.pageY;
         }
-        // Get mouse value in 0 to 1 range, with y flipped
         mouse.set(e.x / gl.renderer.width, 1.0 - e.y / gl.renderer.height);
-        // Calculate velocity
         if (!lastTime) {
-          // First frame
           lastTime = performance.now();
           lastMouse.set(e.x, e.y);
         }
-    
         var deltaX = e.x - lastMouse.x;
         var deltaY = e.y - lastMouse.y;
-    
         lastMouse.set(e.x, e.y);
-    
         var time = performance.now();
-    
-        // Avoid dividing by 0
         var delta = Math.max(10.4, time - lastTime);
         lastTime = time;
         velocity.x = deltaX / delta;
         velocity.y = deltaY / delta;
-        // Flag update to prevent hanging velocity values when not moving
         velocity.needsUpdate = true;
       }
       }
       requestAnimationFrame(update);
       function update(t) {
         requestAnimationFrame(update);
-        // Reset velocity when mouse not moving
         if (!velocity.needsUpdate) {
             mouse.set(-1);
             velocity.set(0);
         }
         texture.needsUpdate = true;
         velocity.needsUpdate = false;
-        // Update flowmap inputs
         flowmap.aspect = aspect;
         flowmap.mouse.copy(mouse);
-        // Ease velocity input, slower when fading out
         flowmap.velocity.lerp(velocity, 0.1);
         flowmap.update();
         program.uniforms.uTime.value = t * 0.001;
         renderer.render({ scene: mesh });
       }
-
-    
-    
-    
-        </script>
-        <canvas id="canvas" width=1920 height=1920></canvas>
+    </script>
+      <canvas id="buffer" width=1920 height=1920></canvas>
+      <canvas id="pattern" width=1920 height=1920></canvas>
         <div id="header">
           <div>Daniel Givens</div>
           <div>Designer/Developer</div>
