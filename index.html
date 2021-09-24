@@ -63,12 +63,12 @@ var fragment = `
   }
 `;
 var globalSize = Math.max(window.innerWidth, window.innerHeight);
-var globalSize = 2880;
+var globalSize = 1920;
 var _size = [globalSize, globalSize];
 var canvas=document.getElementById("canvas");
-canvas.style.width = globalSize;
-canvas.style.height = globalSize;
-var renderer = new Renderer({ dpr: window.devicePixelRatio });
+//canvas.style.width = globalSize;
+//canvas.style.height = globalSize;
+var renderer = new Renderer({ dpr: Math.min(2,window.devicePixelRatio) });
 var gl = renderer.gl;
 document.body.appendChild(gl.canvas);
 var aspect = 1;
@@ -119,11 +119,12 @@ var texture = new Texture(gl, {
   magFilter: gl.LINEAR
 });
 var colors = {
-  color1: "#e83a24",
-  color2: "#fefd5e",
-  color3: "#7df8fb",
-  color4: "#d9d7d4",
-  color5: "#080f2a"
+  color1: "#F91647",
+  color2: "#1071FF",
+  color3: "#C5FC77",
+  color4: "#BC7D00",
+  color5: "#494949",
+  color6: "#EDEDED"
 };
 function getRadianAngle(degreeValue) {
   return degreeValue * Math.PI / 180;
@@ -131,10 +132,10 @@ function getRadianAngle(degreeValue) {
 
 
 var ctx=canvas.getContext("2d");
-ctx.translate(0,0);
+//ctx.translate(0,globalSize/2*-1);
 //ctx.rotate(getRadianAngle(45));
 //ctx.scale(2,2);
-var numberOfStripes = globalSize/10;
+var numberOfStripes = globalSize/20;
 var dur = 1;
 var del = 1;
 var tl = gsap.timeline({repeat: -1,  onUpdate:changeColor });
@@ -171,8 +172,8 @@ function changeColor(){
      // $p= 0;
     }
     if($p === 4){
-      ctx.strokeStyle = colors.color5;
-     $p= 0;
+      ctx.strokeStyle = colors.color4;
+     
     }
     if($p === 5){
       ctx.strokeStyle = colors.color5;
@@ -180,7 +181,7 @@ function changeColor(){
     
     }
     if($p === 6){
-      ctx.strokeStyle = colors.color3;
+      ctx.strokeStyle = colors.color6;
       $p= 0;
     }    
     ctx.lineWidth =thickness;  
@@ -204,7 +205,7 @@ function changeColor(){
   } */  
 }
 var drawGrid = function(can, w, h, step) {
-  ctx.fillStyle = colors.color1;
+  ctx.fillStyle = colors.color4;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath(); 
   for (var x=0;x<=w;x+=step) {
@@ -212,8 +213,8 @@ var drawGrid = function(can, w, h, step) {
           ctx.lineTo(x, h);
   }
   // set the color of the line
-  ctx.strokeStyle = 'rgb(255,0,0)';
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 3;
   // the stroke will actually paint the current path 
   ctx.stroke(); 
   // for the sake of the example 2nd path
@@ -223,15 +224,15 @@ var drawGrid = function(can, w, h, step) {
           ctx.lineTo(w, y);
   }
   // set the color of the line
-  ctx.strokeStyle = 'rgb(20,20,20)';
+  ctx.strokeStyle = 'white';
   // just for fun
-  ctx.lineWidth = 5;
+  ctx.lineWidth = 3;
   // for your original question - you need to stroke only once
   ctx.stroke(); 
 };
 
 
-//drawGrid(canvas, globalSize, globalSize, numberOfStripes/2);
+//drawGrid(canvas, globalSize, globalSize, numberOfStripes/4);
 //drawCheckeredBackground(canvas, numberOfStripes, numberOfStripes)
 /*function drawCheckeredBackground(can, nRow, nCol) {
   ctx.fillStyle = colors.color1;
