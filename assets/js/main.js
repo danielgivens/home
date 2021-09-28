@@ -88,9 +88,9 @@
 	aspect = window.innerWidth / window.innerHeight;
   }
   var flowmap = new Flowmap(gl, {
-	falloff: 0.34,
-	dissipation: 0.9995,
-	alpha: 0.8,
+	falloff: 0.333,
+	dissipation: 0.999666,
+	alpha: 0.666,
 	size: globalSize
   });
   var geometry = new Geometry(gl, {
@@ -117,7 +117,7 @@
   } 
   var ctx=canvas.getContext("2d");
   var bctx=buffer.getContext("2d");
-  var numberOfStripes = globalSize/40;
+  var numberOfStripes = globalSize/33;
   var $p = 0; 
   drawStripes(); 
   function drawStripes(){
