@@ -90,7 +90,7 @@
   var flowmap = new Flowmap(gl, {
 	falloff: 0.333,
 	dissipation: 0.999666,
-	alpha: 0.8,
+	alpha: 0.7,
 	size: globalSize
   });
   var geometry = new Geometry(gl, {
@@ -117,7 +117,7 @@
   } 
   var ctx=canvas.getContext("2d");
   var bctx=buffer.getContext("2d");
-  var numberOfStripes = globalSize/20;
+  var numberOfStripes = globalSize/25;
   var $p = 0; 
   drawStripes(); 
   function drawStripes(){
