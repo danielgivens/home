@@ -1,34 +1,118 @@
 <!DOCTYPE html>
-<html lang="en" style="--vh:1vh;">
-    <head>
-      <meta charset="UTF-8" />
-      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-      <title>Wet Paint • Daniel Givens, Designer/Developer</title>
-      <meta name="title" content="Daniel Givens, Designer/Developer">
-      <meta name="twitter:card" content="summary_large_image">
-      <meta property="og:title" content="Daniel Givens, Designer/Developer" />
-      <meta name="twitter:title" content="Daniel Givens, Designer/Developer"/>
-      <meta name="description" content="A Baltimore-based creative that specializes in web, identity, and motion.">
-      <meta property="og:description" content="A Baltimore-based creative that specializes in web, identity, and motion." />
-      <meta name="twitter:description" content="A Baltimore-based creative that specializes in web, identity, and motion."/>
-      <meta name="viewport" content="width=device-width, viewport-fit=cover, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
-      <meta name="theme-color" media="(prefers-color-scheme: light)" content="white">
-      <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#292929">
-      <meta name="twitter:image" content="https://www.danielgivens.com/assets/images/social.jpg"/>
-      <meta property="og:image" content="https://www.danielgivens.com/assets/images/social.jpg" />
-      <meta name="twitter:site" content="@danielgivens"/>
-      <meta name="twitter:creator" content="@danielgivens"/>
-      <link rel="icon"  type="image/x-icon" href="./assets/icons/favicon-light.png" >
-      <link href="./assets/css/main.css" rel="stylesheet" />
-    </head>
-    <body>
-      <canvas id="pattern"></canvas>
-      <div id="toolbar">
-        <div>Daniel Givens</div>
-        <div>Designer/Developer</div>
-        <div><a href="mailto:mail@danielgivens.com">Drop a line</a></div>
-      </div>
-      <script src="./assets/js/stackblur.min.js"></script>
-      <script type="module" src="./assets/js/main.js"></script>
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daniel Givens</title>
+    <meta name="description" content="Welcome to the online home of creative technologist and human, Daniel Givens.">
+    <link rel="icon" type="image/png" href="favicon.jpg">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Daniel Givens">
+    <meta property="og:description" content="A human who makes things with technology">
+    <meta property="og:image" content="og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Aura Photo">
+    <meta property="og:url" content="https://danielgivens.com">
+    <meta property="og:site_name" content="Daniel Givens">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@danielgivens">
+    <meta name="twitter:creator" content="@danielgivens">
+    <meta name="twitter:title" content="Daniel Givens">
+    <meta name="twitter:description" content="A human who makes things with technology">
+    <meta name="twitter:image" content="twitter-image.jpg">
+    <meta name="twitter:image:alt" content="Aura photo">
+    <style>
+        :root {
+          --color-text: #0e4ded;
+          --color-bg: #f7f5ee;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+          :root:not([data-theme='light']) {
+            --color-text: #faf1be;
+            --color-bg: #141410;
+          }
+        }
+        
+        [data-theme='dark'] {
+          --color-text: #faf1be !important;
+          --color-bg: #141410 !important;
+        }
+        
+        [data-theme='light'] {
+          --color-text: #0025b8 !important;
+          --color-bg: #f7f7e9 !important;
+        }
+
+        @font-face {
+          font-family: 'Geist Mono';
+          src: url('GeistMono-VariableFont_wght.ttf') format('truetype');
+          font-weight:  normal;
+          font-style: normal;
+          font-display: swap; 
+          
+        }
+        body {
+            font-family: 'Geist Mono', monospace;
+            background-color: #f5f5f5;
+            min-height: 100svh;
+            min-width: 100vw;
+            margin:0; padding: 0;
+            background: var(--color-bg);
+            color: var(--color-text);
+            font-size: 0.875rem;
+        }
+        .select-container{
+            display: flex;
+            position:absolute;
+            align-items: center;
+            top:50%;
+            left:50%;
+            transform: translateX(-50%) translateY(-50%);
+        }
+        #pageSelect{
+            font-size: 0.875rem;
+            background: var(--color-bg);
+            color: var(--color-text);
+        }
+        #goButton{
+            margin-left:.5rem;
+            font-size: 0.875rem;
+            background: var(--color-text);
+            color: var(--color-bg);
+        }
+        #goButton:disabled{
+            opacity:0.5;
+        }
+
+    </style>
+</head>
+<body>        
+    <div class="select-container">
+        <select id="pageSelect">
+            <option value="">WWW</option>
+            <option value="https://photos.danielgivens.com">PHOTOS</option>
+            <option value="https://reel.danielgivens.com">REEL</option>
+        </select>
+        <span>.DANIELGIVENS.COM</span>
+        <button id="goButton" class="go-button" disabled>GO</button>
+
+    </div>
+
+    <script>
+        const pageSelect = document.getElementById('pageSelect');
+        const goButton = document.getElementById('goButton');
+        pageSelect.addEventListener('change', function() {
+            goButton.disabled = !this.value;
+        });
+        goButton.addEventListener('click', function() {
+            const selectedValue = pageSelect.value;
+            
+            if (selectedValue) {
+                window.location.href = selectedValue;
+            }
+        });
+    </script>
+</body>
 </html>
